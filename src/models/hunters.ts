@@ -33,7 +33,7 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
   race: {
     type: String,
     required: true,
-    enum: ['witcher', 'Knight', 'Noble', 'Bandit', 'Villager'],
+    enum: ['Witcher', 'Knight', 'Noble', 'Bandit', 'Villager'],
   },
   location: {
     type: String,
