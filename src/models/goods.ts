@@ -4,7 +4,7 @@ import validator from 'validator';
 export interface GoodDocumentInterface extends Document {
   name: string;
   description?: string;
-  material: 'iron' | 'steel' | 'silver' | 'leather' | 'herbs';
+  material: 'Iron' | 'Steel' | 'Silver' | 'Leather' | 'Herbs';
   weight: number;
   value: number;
   quantity: number;
@@ -31,7 +31,7 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
   material: {
     type: String,
     required: true,
-    enum: ['iron', 'steel', 'silver', 'leather', 'herbs'],
+    enum: ['Iron' , 'Steel' , 'Silver' , 'Leather' , 'Herbs'],
   },
   weight: {
     type: Number,
@@ -51,6 +51,7 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
       }
     },
   },
+  // ponerle que si no dice quantity, sea default 10 o algo asi yoqse xddd
   quantity: {
     type: Number,
     required: true,
