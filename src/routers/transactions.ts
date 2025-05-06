@@ -22,11 +22,11 @@ async function processGoods(goods: { name: string; quantity: number }[], hunter:
 
     const good = await Good.findOne({ name });
     if (!good) {
-      throw new Error(`Bien no encontrado: ${name}`);
+      throw new Error(`Good not found: ${name}`);
     }
 
     if (hunter && good.quantity < quantity) {
-      throw new Error(`Stock insuficiente para el bien: ${name}`);
+      throw new Error(`Insufficient stock for the good: ${name}`);
     }
 
     // Actualizar el stock si es una compra de un cazador
@@ -60,13 +60,50 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
   }
 });
 
+transactionsRouter.get('/transactions', async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      res.status(400).send({ error: 'You must put a name in the query string' });
+    }
+
+    // Buscar transacciones relacionadas con un cazador o mercader por nombre
+    const hunter = name ? await Hunter.findOne({ name: name.toString() }) : null;
+    const merchant = name ? await Merchant.findOne({ name: name.toString() }) : null;
+
+    if (!hunter && !merchant) {
+      res.status(404).send({ error: 'No hunter or merchant found with that name' });
+    }
+
+    const transactions = await Transaction.find({
+      $or: [
+        { client: hunter ? hunter._id : null },
+        { merchant: merchant ? merchant._id : null },
+      ],
+    })
+      .populate('client') // Poblamos los datos del cazador
+      .populate('merchant') // Poblamos los datos del mercader
+      .populate('goods.good'); // Poblamos los datos de los bienes
+
+    if (transactions.length === 0) {
+      res.status(404).send({ error: 'Transactions for this name not found.' });
+    }
+
+    res.status(200).send(transactions);
+  } catch (error) {
+    console.error('Error getting transactions:', error);
+    res.status(500).send(error);
+  }
+});
+
 transactionsRouter.post('/transactions', async (req, res) => {
   try {
     const { hunterName, merchantName, goods } = req.body;
 
     // Validar que se proporcione al menos un cazador o un mercader
     if (!hunterName && !merchantName) {
-      res.status(400).send({ error: 'Debe especificar un cazador o un mercader' });
+      res.status(400).send({ error: 'You must specify a hunter or a merchant.' });
     }
 
     // Buscar el cazador o mercader en la base de datos
@@ -74,11 +111,11 @@ transactionsRouter.post('/transactions', async (req, res) => {
     const merchant = merchantName ? await Merchant.findOne({ name: merchantName }) : null;
 
     if (hunterName && !hunter) {
-      res.status(404).send({ error: 'Cazador no encontrado' });
+      res.status(404).send({ error: 'Hunter not found.' });
     }
 
     if (merchantName && !merchant) {
-      res.status(404).send({ error: 'Mercader no encontrado' });
+      res.status(404).send({ error: 'Merchant not found.' });
     }
 
     // Validar y procesar los bienes
