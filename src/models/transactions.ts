@@ -6,7 +6,7 @@ import { MerchantDocumentInterface } from "./merchants.js";
 // falta por hacer rollos con el refund, y corregir más rollos
 
 export interface TransactionDocumentInterface extends Document {
-  type: "purchase" | "sell" | "refund";
+  type: "purchase" | "sell";
   client: Schema.Types.ObjectId | HunterDocumentInterface;
   merchant: Schema.Types.ObjectId | MerchantDocumentInterface;
   goods: {
@@ -20,7 +20,7 @@ export interface TransactionDocumentInterface extends Document {
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
   type: {
     type: String,
-    enum: ["purchase", "sell", "refund"],
+    enum: ["purchase", "sell"],
     required: true,
   },
   client: {
