@@ -1,4 +1,4 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 import { GoodDocumentInterface } from "./goods.js";
 import { HunterDocumentInterface } from "./hunters.js";
 import { MerchantDocumentInterface } from "./merchants.js";
@@ -7,10 +7,10 @@ import { MerchantDocumentInterface } from "./merchants.js";
 
 export interface TransactionDocumentInterface extends Document {
   type: "purchase" | "sell";
-  client: Schema.Types.ObjectId | HunterDocumentInterface;
-  merchant: Schema.Types.ObjectId | MerchantDocumentInterface;
+  client: Types.ObjectId | HunterDocumentInterface | null;
+  merchant: Types.ObjectId | MerchantDocumentInterface | null;
   goods: {
-    good: Schema.Types.ObjectId | GoodDocumentInterface;
+    good: Types.ObjectId | GoodDocumentInterface;
     quantity: number;
   }[];
   date: Date;
