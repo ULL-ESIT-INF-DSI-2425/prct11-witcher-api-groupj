@@ -62,38 +62,72 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
 
 transactionsRouter.get('/transactions', async (req, res) => {
   try {
-    const { name } = req.query;
+    const { name, start, end, type } = req.query;
 
-    if (!name) {
-      res.status(400).send({ error: 'You must put a name in the query string' });
-    }
-
-    // Buscar transacciones relacionadas con un cazador o mercader por nombre
-    const hunter = name ? await Hunter.findOne({ name: name.toString() }) : null;
-    const merchant = name ? await Merchant.findOne({ name: name.toString() }) : null;
+    // Si se proporciona el parámetro `name`, buscar por nombre
+    if (name) {
+      const hunter = await Hunter.findOne({ name: name.toString() });
+      const merchant = await Merchant.findOne({ name: name.toString() });
 
     if (!hunter && !merchant) {
       res.status(404).send({ error: 'No hunter or merchant found with that name' });
     }
 
-    const transactions = await Transaction.find({
-      $or: [
-        { client: hunter ? hunter._id : null },
-        { merchant: merchant ? merchant._id : null },
-      ],
-    })
-      .populate('client') // Poblamos los datos del cazador
-      .populate('merchant') // Poblamos los datos del mercader
-      .populate('goods.good'); // Poblamos los datos de los bienes
+      const transactions = await Transaction.find({
+        $or: [
+          { client: hunter ? hunter._id : null },
+          { merchant: merchant ? merchant._id : null },
+        ],
+      })
+        .populate('client')
+        .populate('merchant')
+        .populate('goods.good');
 
-    if (transactions.length === 0) {
-      res.status(404).send({ error: 'Transactions for this name not found.' });
+      if (transactions.length === 0) {
+        res.status(404).send({ error: 'No transactions found with that name' });
+      }
+
+      res.status(200).send(transactions);
     }
 
-    res.status(200).send(transactions);
+    // Si se proporcionan `start` y `end`, buscar por rango de fechas y tipo
+    if (start && end) {
+      // Validar que el tipo de transacción sea válido
+      const validTypes = ['purchase', 'sell', 'all'];
+      if (type && !validTypes.includes(type.toString())) {
+        res.status(400).send({ error: 'Transaction type must be "purchase", "sell" o "all"' });
+      }
+
+      // Construir el filtro de búsqueda
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const filter: any = {
+        date: {
+          $gte: new Date(start.toString()),
+          $lte: new Date(end.toString()),
+        },
+      };
+
+      if (type && type !== 'all') {
+        filter.type = type.toString();
+      }
+
+      const transactions = await Transaction.find(filter)
+        .populate('client')
+        .populate('merchant')
+        .populate('goods.good');
+
+      if (transactions.length === 0) {
+        res.status(404).send({ error: 'No se encontraron transacciones para los criterios especificados' });
+      }
+
+      res.status(200).send(transactions);
+    }
+
+    // Si no se proporciona ningún parámetro válido
+    res.status(400).send({ error: 'You must provide a valid query string parameter (name or start/end)' });
   } catch (error) {
-    console.error('Error getting transactions:', error);
-    res.status(500).send(error);
+    console.error('Error al obtener las transacciones:', error);
+    res.status(500).send({ error: 'Error interno del servidor' });
   }
 });
 
