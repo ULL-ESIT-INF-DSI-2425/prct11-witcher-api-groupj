@@ -6,6 +6,44 @@ import { Good } from '../models/goods.js';
 
 export const transactionsRouter = express.Router();
 
+/**
+ * Procesa los bienes de la transacción.
+ * @param goods - Lista de bienes con nombre y cantidad.
+ * @param hunter - Instancia del cazador (si aplica).
+ * @returns Bienes procesados y el importe total.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function processGoods(goods: { name: string; quantity: number }[], hunter: any) {
+  let totalAmount = 0;
+  const processedGoods = [];
+
+  for (const item of goods) {
+    const { name, quantity } = item;
+
+    const good = await Good.findOne({ name });
+    if (!good) {
+      throw new Error(`Bien no encontrado: ${name}`);
+    }
+
+    if (hunter && good.quantity < quantity) {
+      throw new Error(`Stock insuficiente para el bien: ${name}`);
+    }
+
+    // Actualizar el stock si es una compra de un cazador
+    if (hunter) {
+      good.quantity -= quantity;
+      await good.save();
+    }
+
+    // Calcular el importe total
+    totalAmount += good.value * quantity;
+
+    processedGoods.push({ good: good._id, quantity });
+  }
+
+  return { processedGoods, totalAmount };
+}
+
 transactionsRouter.get('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
@@ -64,41 +102,44 @@ transactionsRouter.post('/transactions', async (req, res) => {
   }
 });
 
-/**
- * Procesa los bienes de la transacción.
- * @param goods - Lista de bienes con nombre y cantidad.
- * @param hunter - Instancia del cazador (si aplica).
- * @returns Bienes procesados y el importe total.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function processGoods(goods: { name: string; quantity: number }[], hunter: any) {
-  let totalAmount = 0;
-  const processedGoods = [];
+transactionsRouter.delete('/transactions/:id', async (req, res) => {
+  try {
+    const transactionId = req.params.id;
 
-  for (const item of goods) {
-    const { name, quantity } = item;
+    // Buscar la transacción en la base de datos
+    const transaction = await Transaction.findById(transactionId);
 
-    const good = await Good.findOne({ name });
-    if (!good) {
-      throw new Error(`Bien no encontrado: ${name}`);
+    if (!transaction) {
+      res.status(404).send({ error: 'Transaction not found.' });
     }
 
-    if (hunter && good.quantity < quantity) {
-      throw new Error(`Stock insuficiente para el bien: ${name}`);
+    if (transaction && transaction.type === 'purchase') {
+      for (const item of transaction.goods) {
+        const good = await Good.findById(item.good);
+        if (good) {
+          good.quantity += item.quantity; // Revertir el stock
+          await good.save();
+        }
+      }
+    }
+    if (transaction && transaction.type === 'sell') {
+      for (const item of transaction.goods) {
+        const good = await Good.findById(item.good);
+        if (good) {
+          good.quantity -= item.quantity; // Revertir el stock
+          if (good.quantity < 0) good.quantity = 0;
+          await good.save();
+        }
+      }
     }
 
-    // Actualizar el stock si es una compra de un cazador
-    if (hunter) {
-      good.quantity -= quantity;
-      await good.save();
+    // Eliminar la transacción
+    if (transaction) {
+      await transaction.deleteOne();
     }
-
-    // Calcular el importe total
-    totalAmount += good.value * quantity;
-
-    processedGoods.push({ good: good._id, quantity });
+    res.status(200).send({ message: 'Transacction deleted successfully' });
+  } catch (error) {
+    console.error('Error al eliminar la transacción:', error);
+    res.status(500).send({ error: 'Error interno del servidor' });
   }
-
-  return { processedGoods, totalAmount };
-}
-
+});
