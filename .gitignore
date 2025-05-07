@@ -2,3 +2,4 @@ dist
 node_modules
 mongodb
 mongodb-data
+coverage
