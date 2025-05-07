@@ -16,7 +16,7 @@ export interface TransactionDocumentInterface extends Document {
   date: Date;
   totalValue: number;
 }
-
+// haz validators
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
   type: {
     type: String,
@@ -65,6 +65,9 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
   },
 });
 
+/**
+ * esto hace tal cual pollas
+ */
 TransactionSchema.pre("save", async function (next) {
   try {
     // Validar existencia del Hunter si el tipo es "purchase"
