@@ -1,9 +1,10 @@
 import express from 'express';
 import { Types } from 'mongoose';
-import { Transaction } from '../models/transactions.js';
-import { Hunter, HunterDocumentInterface } from '../models/hunters.js';
-import { Merchant } from '../models/merchants.js';
-import { Good } from '../models/goods.js';
+import { Transaction } from '../models/transactionModel.js';
+import { Hunter } from '../models/hunterModel.js';
+import { HunterDocumentInterface } from "../interfaces/hunterInterface.js";
+import { Merchant } from '../models/merchantModel.js';
+import { Good } from '../models/goodModel.js';
 
 export const transactionsRouter = express.Router();
 

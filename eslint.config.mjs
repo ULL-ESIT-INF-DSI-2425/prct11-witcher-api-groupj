@@ -26,7 +26,7 @@ export default [
   {
     rules: {
       "prefer-const": "off", // Desactiva la sugerencia de usar 'const'
-      "tsdoc/syntax": "warn"
+      "tsdoc/syntax": "off"
     }
   }
 ];

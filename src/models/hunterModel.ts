@@ -21,8 +21,8 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
         throw new Error('Hunter name must contain alphanumeric characters only');
       }
     },
-    },
-    age: {
+  },
+  age: {
     type: Number,
     required: true,
     validate: (value: number) => {

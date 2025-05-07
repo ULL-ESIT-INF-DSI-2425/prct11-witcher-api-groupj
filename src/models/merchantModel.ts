@@ -15,6 +15,18 @@ const MerchantSchema = new Schema<MerchantDocumentInterface>({
       }
     },
   },
+  age: {
+    type: Number,
+    required: true,
+    validate: (value: number) => {
+      if (value < 0) {
+      throw new Error('Age cannot be less than 0');
+      }
+      if (!Number.isInteger(value)) {
+      throw new Error('Age must be an integer');
+      }
+    },
+  },
   location: {
     type: String,
     required: true,
