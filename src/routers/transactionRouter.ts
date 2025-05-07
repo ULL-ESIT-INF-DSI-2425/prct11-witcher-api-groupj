@@ -115,6 +115,7 @@ transactionsRouter.get('/transactions/by-name', async (req, res) => {
 
     if (!hunter && !merchant) {
       res.status(404).send({ error: 'No hunter or merchant found with that name.' });
+      return;
     }
 
     const transactions = await Transaction.find({
@@ -201,7 +202,7 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
     const transaction = await Transaction.findById(transactionId);
 
     if (!transaction) {
-      res.status(400).send({ error: 'Transaction not found' });
+      res.status(404).send({ error: 'Transaction not found' });
     }
 
     res.status(200).send(transaction);
@@ -220,7 +221,7 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
 transactionsRouter.patch('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
-    const { hunterName, merchantName } = req.body;
+    const { hunterName, merchantName, goods } = req.body;
 
     // Buscar la transacción existente
     const transaction = await Transaction.findById(transactionId);
@@ -257,15 +258,25 @@ transactionsRouter.patch('/transactions/:id', async (req, res) => {
 
       if (hunterName && !hunter) {
         res.status(404).send({ error: 'Hunter not found.' });
+        return;
       }
 
       if (merchantName && !merchant) {
         res.status(404).send({ error: 'Merchant not found.' });
+        return;
       }
 
       transaction.type = hunter ? 'purchase' : 'sell';
       transaction.client = hunter ? (hunter._id as Types.ObjectId) : null;
       transaction.merchant = merchant ? (merchant._id as Types.ObjectId) : null;
+    }
+
+    // Procesar y actualizar los bienes si se proporcionan
+    if (goods) {
+      const populatedTransaction = await transaction.populate('client');
+      const { processedGoods, totalAmount } = await processGoods(goods, populatedTransaction.client as HunterDocumentInterface | null);
+      transaction.goods = processedGoods;
+      transaction.totalValue = totalAmount; // Actualizar el totalValue
     }
 
     // Actualizar la fecha de la transacción
@@ -323,7 +334,7 @@ transactionsRouter.delete('/transactions/:id', async (req, res) => {
     if (transaction) {
       await transaction.deleteOne();
     }
-    res.status(200).send({ message: 'Transacction deleted successfully' });
+    res.status(200).send({ message: 'Transaction deleted successfully' });
   } catch (error) {
     console.error('Error al eliminar la transacción:', error);
     res.status(500).send({ error: 'Error interno del servidor' });
