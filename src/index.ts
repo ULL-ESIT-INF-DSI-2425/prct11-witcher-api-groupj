@@ -1,6 +1,7 @@
 // HUNTERS DUPLICADOS POR NOMBRE ARREGLAR
 // poner las putas s en los manejadores
 // anadir par de validadores en los modelos
+// poner bien las rutas para la documentacion
 
 import express from 'express';
 import './db/mongoose.js';

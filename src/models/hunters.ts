@@ -1,12 +1,6 @@
-import { Document, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { HunterDocumentInterface } from "../interfaces/hunterInterface.js";
 import validator from 'validator';
-
-export interface HunterDocumentInterface extends Document {
-  name: string;
-  age: number;
-  race: 'Witcher' | 'Knight' | 'Noble' | 'Bandit' | 'Villager';
-  location: 'Brugge' | 'Maribor' | 'Cintra' | 'Verden';
-}
 
 const HunterSchema = new Schema<HunterDocumentInterface>({
   name: {
@@ -20,13 +14,16 @@ const HunterSchema = new Schema<HunterDocumentInterface>({
         throw new Error('Hunter name must contain alphanumeric characters only');
       }
     },
-  },
-  age: {
+    },
+    age: {
     type: Number,
     required: true,
     validate: (value: number) => {
       if (value < 0) {
-        throw new Error('Age cannot be less than 0');
+      throw new Error('Age cannot be less than 0');
+      }
+      if (!Number.isInteger(value)) {
+      throw new Error('Age must be an integer');
       }
     },
   },

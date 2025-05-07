@@ -1,14 +1,6 @@
-import { Document, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { GoodDocumentInterface } from "../interfaces/goodInterface.js";
 import validator from 'validator';
-
-export interface GoodDocumentInterface extends Document {
-  name: string;
-  description?: string;
-  material: 'Iron' | 'Steel' | 'Silver' | 'Leather' | 'Herbs';
-  weight: number;
-  value: number;
-  quantity: number;
-}
 
 const GoodSchema = new Schema<GoodDocumentInterface>({
   name: {

@@ -1,12 +1,6 @@
-import { Document, Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { MerchantDocumentInterface } from "../interfaces/merchantInterface.js";
 import validator from 'validator';
-
-export interface MerchantDocumentInterface extends Document {
-  name: string;
-  age: number;
-  location: 'Brugge' | 'Maribor' | 'Cintra' | 'Verden';
-  type: 'blacksmith' | 'alchemist' | 'trader' | 'herbalist';
-}
 
 const MerchantSchema = new Schema<MerchantDocumentInterface>({
   name: {
