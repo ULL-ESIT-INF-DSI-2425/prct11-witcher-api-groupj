@@ -71,7 +71,7 @@ hunterRouter.patch("/hunters/:id", async (req, res) => {
       res.status(404).send({ error: "Cazador no encontrado" });
       return;
     }
-    const allowedUpdates = ["name", "location", "race"];
+    const allowedUpdates = ["name", "location", "age", "race"];
     const actualUpdates = Object.keys(req.body);
     const isValidUpdate = actualUpdates.every((update) =>
       allowedUpdates.includes(update)
@@ -106,7 +106,7 @@ hunterRouter.patch("/hunters", async (req, res) => {
       return;
     }
 
-    const allowedUpdates = ["name", "location", "race"];
+    const allowedUpdates = ["name", "location", "age", "race"];
     const actualUpdates = Object.keys(req.body);
     const isValidUpdate = actualUpdates.every((update) =>
       allowedUpdates.includes(update),
