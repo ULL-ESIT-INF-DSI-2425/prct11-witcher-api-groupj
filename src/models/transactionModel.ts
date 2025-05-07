@@ -1,21 +1,6 @@
-import { Document, Schema, model, Types } from "mongoose";
-import { GoodDocumentInterface } from "../interfaces/goodInterface.js";
-import { HunterDocumentInterface } from "../interfaces/hunterInterface.js";
-import { MerchantDocumentInterface } from "../interfaces/merchantInterface.js";
+import { Schema, model } from "mongoose";
+import { TransactionDocumentInterface } from "../interfaces/transactionInterface.js";
 
-// falta por hacer rollos con el refund, y corregir más rollos
-
-export interface TransactionDocumentInterface extends Document {
-  type: "purchase" | "sell";
-  client: Types.ObjectId | HunterDocumentInterface | null;
-  merchant: Types.ObjectId | MerchantDocumentInterface | null;
-  goods: {
-    good: Types.ObjectId | GoodDocumentInterface;
-    quantity: number;
-  }[];
-  date: Date;
-  totalValue: number;
-}
 // haz validators
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
   type: {
