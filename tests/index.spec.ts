@@ -1,6 +1,11 @@
-// filepath: /home/usuario/prct11-witcher-api-groupj/tests/index.spec.ts
+import { runGoodTests } from './good.spec.js';
+import { runHunterTests } from './hunter.spec.js';
+import { runMerchantTests } from './merchant.spec.js';
+import { runTransactionTests } from './transaction.spec.js';
+import { defaultRouterTests } from './default.spec.js';
 
-import "./transaction.spec.ts";
-import "./hunter.spec.ts";
-import "./merchant.spec.ts";
-import "./good.spec.ts";
+defaultRouterTests();
+runGoodTests();
+runHunterTests();
+runMerchantTests();
+runTransactionTests();
