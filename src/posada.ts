@@ -1,5 +1,3 @@
-// HUNTERS DUPLICADOS POR NOMBRE ARREGLAR
-// poner bien las rutas para la documentacion (typedoc.json)
 // readme: link del render, poner que solo somos dos
 
 import express from 'express';
