@@ -2,6 +2,15 @@ import { Schema, model } from 'mongoose';
 import { GoodDocumentInterface } from "../interfaces/goodInterface.js";
 import validator from 'validator';
 
+/**
+ * Schema que representa un bien en nuestra posada
+ * - name: nombre del bien 
+ * - description: descripcion del bien 
+ * - material: material del bien 
+ * - weight: peso del bien 
+ * - value: valor del bien 
+ * - quantity: cantidad en stock del bien (por defecto 20)
+ */
 const GoodSchema = new Schema<GoodDocumentInterface>({
   name: {
     type: String,
@@ -32,6 +41,9 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
       if (value <= 0) {
         throw new Error('Weight must be greater than 0');
       }
+      if (!Number.isInteger(value)) {
+        throw new Error('Age must be an integer');
+      }
     },
   },
   value: {
@@ -43,13 +55,16 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
       }
     },
   },
-  // ponerle que si no dice quantity, sea default 10 o algo asi yoqse xddd
   quantity: {
     type: Number,
     required: true,
+    default: 20,
     validate: (value: number) => {
       if (value <= 0) {
         throw new Error('Quantity must be greater than 0');
+      }
+      if (!Number.isInteger(value)) {
+        throw new Error('Age must be an integer');
       }
     },
   },

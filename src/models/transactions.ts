@@ -1,7 +1,7 @@
 import { Document, Schema, model, Types } from "mongoose";
-import { GoodDocumentInterface } from "./goods.js";
-import { HunterDocumentInterface } from "./hunters.js";
-import { MerchantDocumentInterface } from "./merchants.js";
+import { GoodDocumentInterface } from "../interfaces/goodInterface.js";
+import { HunterDocumentInterface } from "../interfaces/hunterInterface.js";
+import { MerchantDocumentInterface } from "../interfaces/merchantInterface.js";
 
 // falta por hacer rollos con el refund, y corregir más rollos
 

@@ -2,6 +2,13 @@ import { Schema, model } from 'mongoose';
 import { HunterDocumentInterface } from "../interfaces/hunterInterface.js";
 import validator from 'validator';
 
+/**
+ * Schema que representa un cazador en nuestra posada
+ * - name: nombre del cazador
+ * - age: edad del cazador
+ * - race: raza del cazador, su tipo
+ * - location: localizacion del cazador
+ */
 const HunterSchema = new Schema<HunterDocumentInterface>({
   name: {
     type: String,
