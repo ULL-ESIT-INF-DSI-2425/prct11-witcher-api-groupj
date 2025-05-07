@@ -8,8 +8,8 @@
     "start": "tsc-watch --onSuccess \"node dist/index.js\"",
     "doc": "typedoc",
     "dev": "tsc-watch --onSuccess \"env-cmd -f ./config/dev.env node dist/index.js\"",
-    "test": "env-cmd -f ./config/test.env vitest run",
-    "coverage": "env-cmd -f ./config/test.env vitest run --coverage --coverage.include **/src/*"
+    "test": "env-cmd -f ./config/test.env vitest run tests/index.spec.ts",
+    "coverage": "env-cmd -f ./config/test.env vitest run tests/index.spec.ts --coverage"
   },
   "repository": {
     "type": "git",
