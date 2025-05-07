@@ -1,13 +1,22 @@
 import { Schema, model } from "mongoose";
 import { TransactionDocumentInterface } from "../interfaces/transactionInterface.js";
 
-// haz validators
+/**
+ * Esquema de transacciones en la base de datos.
+ * Representa una transacción que puede ser una compra de un cazador o una venta de un mercader.
+ */
 const TransactionSchema = new Schema<TransactionDocumentInterface>({
+  /**
+   * Tipo de transacción: "purchase" (compra) o "sell" (venta).
+   */
   type: {
     type: String,
     enum: ["purchase", "sell"],
     required: true,
   },
+  /**
+   * Referencia al cazador (cliente) en caso de que la transacción sea de tipo "purchase".
+   */
   client: {
     type: Schema.Types.ObjectId,
     ref: "Hunter",
@@ -15,6 +24,9 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
       return this.type === "purchase";
     },
   },
+  /**
+   * Referencia al mercader en caso de que la transacción sea de tipo "sell".
+   */
   merchant: {
     type: Schema.Types.ObjectId,
     ref: "Merchant",
@@ -22,6 +34,9 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
       return this.type === "sell";
     },
   },
+  /**
+   * Lista de bienes involucrados en la transacción.
+   */
   goods: [
     {
       good: {
@@ -36,10 +51,18 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
       },
     },
   ],
+  /**
+   * Fecha de la transacción.
+   * Por defecto, se establece en la fecha actual.
+   */
   date: {
     type: Date,
     default: Date.now,
   },
+  /**
+   * Valor total de la transacción.
+   * Debe ser mayor o igual a 0.
+   */
   totalValue: {
     type: Number,
     required: true,
@@ -51,7 +74,8 @@ const TransactionSchema = new Schema<TransactionDocumentInterface>({
 });
 
 /**
- * esto hace tal cual pollas
+ * Middleware que se ejecuta antes de guardar una transacción.
+ * Valida la existencia de cazadores, mercaderes y bienes, y calcula el valor total de la transacción.
  */
 TransactionSchema.pre("save", async function (next) {
   try {
@@ -88,6 +112,9 @@ TransactionSchema.pre("save", async function (next) {
   }
 });
 
+/**
+ * Modelo de transacciones basado en el esquema `TransactionSchema`.
+ */
 export const Transaction = model<TransactionDocumentInterface>(
   "Transaction",
   TransactionSchema,

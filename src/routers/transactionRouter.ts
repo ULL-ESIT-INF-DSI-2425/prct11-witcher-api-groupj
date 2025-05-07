@@ -8,6 +8,14 @@ import { Good } from '../models/goodModel.js';
 
 export const transactionsRouter = express.Router();
 
+/**
+ * Procesa los bienes involucrados en una transacción.
+ * 
+ * @param goods - Lista de bienes con nombre y cantidad.
+ * @param hunter - Instancia del cazador (si aplica).
+ * @returns Un objeto con los bienes procesados y el importe total.
+ * @throws Error si un bien no existe o si no hay suficiente stock.
+ */
 async function processGoods(
   goods: { name: string; quantity: number }[],
   hunter: HunterDocumentInterface | null
@@ -37,6 +45,13 @@ async function processGoods(
   return { processedGoods, totalAmount };
 }
 
+/**
+ * Crea una nueva transacción.
+ * 
+ * @route POST /transactions
+ * @param req - Solicitud HTTP con hunterName, merchantName y goods en el cuerpo.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.post('/transactions', async (req, res) => {
   try {
     const { hunterName, merchantName, goods } = req.body;
@@ -79,7 +94,13 @@ transactionsRouter.post('/transactions', async (req, res) => {
   }
 });
 
-// Ruta para buscar transacciones por nombre (cazador o mercader)
+/**
+ * Busca transacciones por nombre de cazador o mercader.
+ * 
+ * @route GET /transactions/by-name
+ * @param req - Solicitud HTTP con el parámetro `name` en la query string.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.get('/transactions/by-name', async (req, res) => {
   try {
     const { name } = req.query;
@@ -117,7 +138,13 @@ transactionsRouter.get('/transactions/by-name', async (req, res) => {
   }
 });
 
-// Ruta para buscar transacciones por rango de fechas y tipo
+/**
+ * Busca transacciones por rango de fechas y tipo.
+ * 
+ * @route GET /transactions/by-date
+ * @param req - Solicitud HTTP con `start`, `end` y `type` en la query string.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.get('/transactions/by-date', async (req, res) => {
   try {
     const { start, end, type } = req.query;
@@ -160,6 +187,13 @@ transactionsRouter.get('/transactions/by-date', async (req, res) => {
   }
 });
 
+/**
+ * Obtiene una transacción por su ID.
+ * 
+ * @route GET /transactions/:id
+ * @param req - Solicitud HTTP con el parámetro dinámico `id`.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.get('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
@@ -176,7 +210,13 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
   }
 });
 
-
+/**
+ * Actualiza parcialmente una transacción.
+ * 
+ * @route PATCH /transactions/:id
+ * @param req - Solicitud HTTP con el parámetro dinámico `id` y datos a actualizar en el cuerpo.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.patch('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
@@ -241,6 +281,13 @@ transactionsRouter.patch('/transactions/:id', async (req, res) => {
   }
 });
 
+/**
+ * Elimina una transacción por su ID.
+ * 
+ * @route DELETE /transactions/:id
+ * @param req - Solicitud HTTP con el parámetro dinámico `id`.
+ * @param res - Respuesta HTTP.
+ */
 transactionsRouter.delete('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
