@@ -8,13 +8,6 @@ import { Good } from '../models/goodModel.js';
 
 export const transactionsRouter = express.Router();
 
-/**
- * Procesa los bienes de la transacción.
- * @param goods - Lista de bienes con nombre y cantidad.
- * @param hunter - Instancia del cazador (si aplica).
- * @returns Bienes procesados y el importe total.
- */
-
 async function processGoods(
   goods: { name: string; quantity: number }[],
   hunter: HunterDocumentInterface | null
@@ -86,6 +79,87 @@ transactionsRouter.post('/transactions', async (req, res) => {
   }
 });
 
+// Ruta para buscar transacciones por nombre (cazador o mercader)
+transactionsRouter.get('/transactions/by-name', async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      res.status(400).send({ error: 'You must provide a name in the query string.' });
+      return;
+    }
+
+    const hunter = await Hunter.findOne({ name: name.toString() });
+    const merchant = await Merchant.findOne({ name: name.toString() });
+
+    if (!hunter && !merchant) {
+      res.status(404).send({ error: 'No hunter or merchant found with that name.' });
+    }
+
+    const transactions = await Transaction.find({
+      $or: [
+        { client: hunter ? hunter._id : null },
+        { merchant: merchant ? merchant._id : null },
+      ],
+    })
+      .populate('client')
+      .populate('merchant')
+      .populate('goods.good');
+
+    if (transactions.length === 0) {
+      res.status(404).send({ error: 'No transactions found for that name.' });
+    }
+
+    res.status(200).send(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions by name:', error);
+    res.status(500).send({ error: 'Internal server error.' });
+  }
+});
+
+// Ruta para buscar transacciones por rango de fechas y tipo
+transactionsRouter.get('/transactions/by-date', async (req, res) => {
+  try {
+    const { start, end, type } = req.query;
+
+    if (!start || !end) {
+      res.status(400).send({ error: 'You must provide start and end dates in the query string.' });
+      return;
+    }
+
+    const validTypes = ['purchase', 'sell', 'all'];
+    if (type && !validTypes.includes(type.toString())) {
+      res.status(400).send({ error: 'Transaction type must be "purchase", "sell", or "all".' });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter: any = {
+      date: {
+        $gte: new Date(start.toString()),
+        $lte: new Date(end.toString()),
+      },
+    };
+
+    if (type && type !== 'all') {
+      filter.type = type.toString();
+    }
+
+    const transactions = await Transaction.find(filter)
+      .populate('client')
+      .populate('merchant')
+      .populate('goods.good');
+
+    if (transactions.length === 0) {
+      res.status(404).send({ error: 'No transactions found for the specified criteria.' });
+    }
+
+    res.status(200).send(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions by date:', error);
+    res.status(500).send({ error: 'Internal server error.' });
+  }
+});
+
 transactionsRouter.get('/transactions/:id', async (req, res) => {
   try {
     const transactionId = req.params.id;
@@ -102,80 +176,6 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
   }
 });
 
-//transactions/transactions/:name
-//transactions/transactions/:date
-
-//dividir lol xd
-transactionsRouter.get('/transactions', async (req, res) => {
-  try {
-    const { name, start, end, type } = req.query;
-
-    // Si se proporciona el parámetro `name`, buscar por nombre
-    if (name) {
-      const hunter = await Hunter.findOne({ name: name.toString() });
-      const merchant = await Merchant.findOne({ name: name.toString() });
-
-    if (!hunter && !merchant) {
-      res.status(404).send({ error: 'No hunter or merchant found with that name' });
-    }
-
-      const transactions = await Transaction.find({
-        $or: [
-          { client: hunter ? hunter._id : null },
-          { merchant: merchant ? merchant._id : null },
-        ],
-      })
-        .populate('client')
-        .populate('merchant')
-        .populate('goods.good');
-
-      if (transactions.length === 0) {
-        res.status(404).send({ error: 'No transactions found with that name' });
-      }
-
-      res.status(200).send(transactions);
-    }
-
-    // Si se proporcionan `start` y `end`, buscar por rango de fechas y tipo
-    if (start && end) {
-      // Validar que el tipo de transacción sea válido
-      const validTypes = ['purchase', 'sell', 'all'];
-      if (type && !validTypes.includes(type.toString())) {
-        res.status(400).send({ error: 'Transaction type must be "purchase", "sell" o "all"' });
-      }
-
-      // Construir el filtro de búsqueda
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const filter: any = {
-        date: {
-          $gte: new Date(start.toString()),
-          $lte: new Date(end.toString()),
-        },
-      };
-
-      if (type && type !== 'all') {
-        filter.type = type.toString();
-      }
-
-      const transactions = await Transaction.find(filter)
-        .populate('client')
-        .populate('merchant')
-        .populate('goods.good');
-
-      if (transactions.length === 0) {
-        res.status(404).send({ error: 'No se encontraron transacciones para los criterios especificados' });
-      }
-
-      res.status(200).send(transactions);
-    }
-
-    // Si no se proporciona ningún parámetro válido
-    res.status(400).send({ error: 'You must provide a valid query string parameter (name or start/end)' });
-  } catch (error) {
-    console.error('Error al obtener las transacciones:', error);
-    res.status(500).send({ error: 'Error interno del servidor' });
-  }
-});
 
 transactionsRouter.patch('/transactions/:id', async (req, res) => {
   try {
