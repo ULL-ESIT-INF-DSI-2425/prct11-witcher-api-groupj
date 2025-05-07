@@ -20,7 +20,7 @@ hunterRouter.post("/hunters", async (req, res) => {
     await hunter.save();
     res.status(201).send(hunter);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
   }
 });
 
