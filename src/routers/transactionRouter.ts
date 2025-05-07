@@ -102,6 +102,10 @@ transactionsRouter.get('/transactions/:id', async (req, res) => {
   }
 });
 
+//transactions/transactions/:name
+//transactions/transactions/:date
+
+//dividir lol xd
 transactionsRouter.get('/transactions', async (req, res) => {
   try {
     const { name, start, end, type } = req.query;
