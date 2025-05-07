@@ -1,4 +1,4 @@
-import { describe, test, beforeEach, expect } from "vitest";
+import { describe, test, beforeEach, expect, afterAll } from "vitest";
 import request from "supertest";
 import { app } from "../src/app.js";
 import { Good } from "../src/models/goodModel.js";
@@ -15,6 +15,10 @@ const goodSample = {
 beforeEach(async () => {
   await Good.deleteMany();
   await new Good(goodSample).save();
+});
+
+afterAll(async () => {
+  await Good.deleteMany();
 });
 
 describe("POST /goods", () => {

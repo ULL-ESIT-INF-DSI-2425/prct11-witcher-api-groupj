@@ -1,4 +1,4 @@
-import { describe, test, beforeEach, expect } from "vitest";
+import { describe, test, beforeEach, expect, afterAll } from "vitest";
 import request from "supertest";
 import { app } from "../src/app.js";
 import { Merchant } from "../src/models/merchantModel.js";
@@ -13,6 +13,10 @@ const merchantSample = {
 beforeEach(async () => {
   await Merchant.deleteMany();
   await new Merchant(merchantSample).save();
+});
+
+afterAll(async () => {
+  await Merchant.deleteMany();
 });
 
 describe("POST /merchants", () => {
