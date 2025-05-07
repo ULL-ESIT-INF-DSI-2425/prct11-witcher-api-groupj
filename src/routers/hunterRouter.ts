@@ -9,14 +9,21 @@ export const hunterRouter = express.Router();
  * @body { name, age, race, location }
  */
 hunterRouter.post("/hunters", async (req, res) => {
-  const hunter = new Hunter(req.body);
   try {
+    const existingHunter = await Hunter.findOne({ name: req.body.name });
+    if (existingHunter) {
+      res.status(404).send({ error: "Ya hay un cazador con ese nombre" });
+      return;
+    }
+
+    const hunter = new Hunter(req.body);
     await hunter.save();
     res.status(201).send(hunter);
   } catch (error) {
     res.status(400).send(error);
   }
 });
+
 
 /**
  * Busca cazadores que coincidan con la query en la base de datos.

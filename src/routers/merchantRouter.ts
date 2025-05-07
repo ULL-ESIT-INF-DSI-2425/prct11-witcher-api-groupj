@@ -9,8 +9,14 @@ export const merchantsRouter = express.Router();
  * @body { name, age, location, type }
  */
 merchantsRouter.post("/merchants", async (req, res) => {
-  const merchant = new Merchant(req.body);
   try {
+    const existingMerchant = await Merchant.findOne({ name: req.body.name });
+    if (existingMerchant) {
+      res.status(404).send({ error: "Ya hay un mercader con ese nombre" });
+      return;
+    }
+
+    const merchant = new Merchant(req.body);
     await merchant.save();
     res.status(201).send(merchant);
   } catch (error) {

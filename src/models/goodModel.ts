@@ -41,9 +41,6 @@ const GoodSchema = new Schema<GoodDocumentInterface>({
       if (value <= 0) {
         throw new Error('Weight must be greater than 0');
       }
-      if (!Number.isInteger(value)) {
-        throw new Error('Age must be an integer');
-      }
     },
   },
   value: {

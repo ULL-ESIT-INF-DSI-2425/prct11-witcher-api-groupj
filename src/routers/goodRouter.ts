@@ -9,14 +9,20 @@ export const goodsRouter = express.Router();
  * @body { name, description, material, weight, value, quantity }
  */
 goodsRouter.post("/goods", async (req, res) => {
-  const good = new Good(req.body);
   try {
+    const existingGood = await Good.findOne({ name: req.body.name });
+    if (existingGood) {
+      res.status(404).send({ error: "Ya hay un bien con ese nombre" });
+      return;
+    }
+    const good = new Good(req.body);
     await good.save();
     res.status(201).send(good);
   } catch (error) {
     res.status(500).send(error);
   }
 });
+
 
 /**
  * Busca bienes que coincidan con la query en la base de datos.
