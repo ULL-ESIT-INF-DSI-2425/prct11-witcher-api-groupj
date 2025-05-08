@@ -1,10 +1,4 @@
-// readme: link del render, poner que solo somos dos
-// readme poner el sonarqube y coveralls y tests ci
-// sonarqube
-// TODO saber q es transacciones 
-// pruebas y doc de transacciones
-// mas pruebas si tal en general 
-// generar la documentacion al acabar
+// readme: link del render
 // hacer video
 
 import express from 'express';
